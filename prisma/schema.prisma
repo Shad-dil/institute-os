@@ -1,0 +1,197 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  OWNER
+  STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(OWNER)
+  instituteId  String
+  createdAt    DateTime @default(now())
+
+  institute    Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+}
+// 🏢 INSTITUTE / TENANT (Prepared for scaling to multi-tenancy later)
+model Institute {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  courses  Course[]
+  students Student[]
+  tests    Test[]
+  batches Batch[]
+  users User[]
+}
+
+// 📚 COURSES offered by the institute
+model Course {
+  id          String   @id @default(cuid())
+  name        String // e.g., "Python Programming", "Class 10 Math"
+  fees        Decimal // Total course cost or monthly base fee
+  duration    String // e.g., "3 Months", "1 Year"
+  instituteId String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  students  Student[]
+  tests     Test[]
+  batches Batch[]
+}
+
+// 👥 STUDENTS enrolled in the institute
+model Student {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String // Crucial for sending WhatsApp/SMS updates
+  parentName  String?
+  parentPhone String?
+  joinedAt    DateTime @default(now())
+  instituteId String
+  courseId    String
+
+  // Relations
+  institute   Institute    @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [courseId], references: [id])
+  attendance  Attendance[]
+  invoices    Invoice[]
+  testResults TestResult[]
+  note  Note[]
+  batchId String?
+  batch   Batch?  @relation(fields: [batchId], references: [id], onDelete: SetNull)
+}
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  studentId String
+  createdAt DateTime @default(now())
+
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+// 📅 ATTENDANCE TRACKER
+model Attendance {
+  id        String           @id @default(cuid())
+  date      DateTime // Typically stored as just the date component (YYYY-MM-DD)
+  status    AttendanceStatus // Custom Enum: PRESENT, ABSENT, LATE
+  studentId String
+  createdAt DateTime         @default(now())
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Ensure a student can only have one attendance record per day
+  @@unique([studentId, date])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+// 💰 FEE TRACKING & INVOICES
+
+enum InvoiceStatus {
+  PAID
+  PARTIAL
+  PENDING
+  OVERDUE
+}
+
+// CHANGE: Invoice gets an amountPaid running total + a payments relation
+model Invoice {
+  id         String        @id @default(cuid())
+  amount     Decimal
+  amountPaid Decimal       @default(0) // NEW — running total across all payments
+  dueDate    DateTime
+  paidAt     DateTime? // now means "date of most recent payment", not just full payment
+  status     InvoiceStatus @default(PENDING)
+  studentId  String
+  createdAt  DateTime      @default(now())
+
+  student  Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments Payment[] // NEW
+}
+
+// NEW MODEL — one row per actual payment collected. This is what makes
+// partial payments, payment history, and receipts all possible: each
+// receipt is just one Payment row rendered as a slip.
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  amount    Decimal
+  method    PaymentMethod @default(CASH)
+  paidAt    DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+model Test {
+  id          String   @id @default(cuid())
+  name        String // e.g., "Physics Unit Test 3", "Tally Module 2 Exam"
+  maxMarks    Decimal
+  testDate    DateTime
+  courseId    String
+  instituteId String
+  createdAt   DateTime @default(now())
+
+  course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  institute Institute    @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  results   TestResult[]
+}
+
+model TestResult {
+  id            String   @id @default(cuid())
+  testId        String
+  studentId     String
+  marksObtained Decimal
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  test    Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // One result per student per test — re-entering marks updates this row
+  // instead of creating a duplicate.
+  @@unique([testId, studentId])
+}
+model Batch {
+  id          String    @id @default(cuid())
+  name        String    // e.g., "Morning Batch A", "Evening — Weekdays"
+  schedule    String    // e.g., "Mon, Wed, Fri · 6:00–7:30 PM" — free text, not structured
+  facultyName String?   // plain text for now — becomes a real Teacher relation once that model exists
+  capacity    Int?
+  startDate   DateTime?
+  courseId    String
+  instituteId String
+  createdAt   DateTime  @default(now())
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  institute   Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  students    Student[]
+}

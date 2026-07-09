@@ -1,0 +1,29 @@
+// ---------------------------------------------------------------------------
+// ADD to prisma/schema.prisma, then run:
+//   npx prisma migrate dev --name add_users
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  OWNER
+  STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(OWNER)
+  instituteId  String
+  createdAt    DateTime @default(now())
+
+  institute    Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+}
+
+// Add this relation line to your existing Institute model:
+//   model Institute { ... users User[] }
+//
+// Note: Institute.email and User.email are separate unique constraints on
+// separate tables — using the same address for both at signup (institute
+// contact email = the owner's login email) is fine and expected; they're
+// just not the same column.
