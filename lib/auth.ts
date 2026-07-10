@@ -2,10 +2,11 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import authConfig from "@/auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
   providers: [
     Credentials({
       credentials: {
@@ -34,9 +35,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    // Runs on sign-in and on every subsequent request that reads the
-    // token — this is where instituteId/role actually get embedded into
-    // the JWT so they're available without a DB round-trip on every page.
+    // authConfig only defines `authorized` (middleware-only) — spreading
+    // it here keeps that intact while adding jwt/session, which only the
+    // full config needs.
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.instituteId = user.instituteId;
