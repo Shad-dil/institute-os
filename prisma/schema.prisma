@@ -21,8 +21,9 @@ model User {
   instituteId  String
   createdAt    DateTime @default(now())
 
-  institute    Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
 }
+
 // 🏢 INSTITUTE / TENANT (Prepared for scaling to multi-tenancy later)
 model Institute {
   id        String   @id @default(cuid())
@@ -34,8 +35,8 @@ model Institute {
   courses  Course[]
   students Student[]
   tests    Test[]
-  batches Batch[]
-  users User[]
+  batches  Batch[]
+  users    User[]
 }
 
 // 📚 COURSES offered by the institute
@@ -51,7 +52,7 @@ model Course {
   institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
   students  Student[]
   tests     Test[]
-  batches Batch[]
+  batches   Batch[]
 }
 
 // 👥 STUDENTS enrolled in the institute
@@ -72,17 +73,18 @@ model Student {
   attendance  Attendance[]
   invoices    Invoice[]
   testResults TestResult[]
-  note  Note[]
-  batchId String?
-  batch   Batch?  @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  note        Note[]
+  batchId     String?
+  batch       Batch?       @relation(fields: [batchId], references: [id], onDelete: SetNull)
 }
+
 model Note {
   id        String   @id @default(cuid())
   content   String
   studentId String
   createdAt DateTime @default(now())
 
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 // 📅 ATTENDANCE TRACKER
@@ -180,18 +182,19 @@ model TestResult {
   // instead of creating a duplicate.
   @@unique([testId, studentId])
 }
+
 model Batch {
   id          String    @id @default(cuid())
-  name        String    // e.g., "Morning Batch A", "Evening — Weekdays"
-  schedule    String    // e.g., "Mon, Wed, Fri · 6:00–7:30 PM" — free text, not structured
-  facultyName String?   // plain text for now — becomes a real Teacher relation once that model exists
+  name        String // e.g., "Morning Batch A", "Evening — Weekdays"
+  schedule    String // e.g., "Mon, Wed, Fri · 6:00–7:30 PM" — free text, not structured
+  facultyName String? // plain text for now — becomes a real Teacher relation once that model exists
   capacity    Int?
   startDate   DateTime?
   courseId    String
   instituteId String
   createdAt   DateTime  @default(now())
 
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  institute   Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
-  students    Student[]
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  students  Student[]
 }
