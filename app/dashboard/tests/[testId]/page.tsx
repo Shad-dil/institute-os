@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { MarksEntryTable } from "@/components/tests/marks-entry-table";
 import { ToppersShareButton } from "@/components/tests/toppers-share-button";
 import { getTestDetail } from "@/lib/queries/tests-queries";
+import { getCurrentInstituteId } from "@/lib/queries/institute";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ interface TestDetailPageProps {
 
 export default async function TestDetailPage({ params }: TestDetailPageProps) {
   const { testId } = await params;
-  const test = await getTestDetail(testId);
+  const instituteId = await getCurrentInstituteId();
+  const test = await getTestDetail(testId, instituteId);
 
   if (!test) notFound();
 

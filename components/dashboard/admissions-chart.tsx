@@ -1,6 +1,15 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LabelList, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  LabelList,
+  Cell,
+} from "recharts";
 import type { AdmissionsPoint } from "@/types/dashboard";
 
 interface AdmissionsChartProps {
@@ -22,8 +31,15 @@ export function AdmissionsChart({ data }: AdmissionsChartProps) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 24, right: 8, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+        <BarChart
+          data={data}
+          margin={{ top: 24, right: 8, left: -16, bottom: 0 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#E2E8F0"
+            vertical={false}
+          />
           <XAxis
             dataKey="month"
             axisLine={false}
@@ -33,12 +49,19 @@ export function AdmissionsChart({ data }: AdmissionsChartProps) {
           <YAxis hide />
           <Bar dataKey="admissions" radius={[6, 6, 0, 0]} maxBarSize={44}>
             {data.map((_, index) => (
-              <Cell key={index} fill={index === maxIndex ? "#2563EB" : "#BFDBFE"} />
+              <Cell
+                key={index}
+                fill={index === maxIndex ? "#2563EB" : "#BFDBFE"}
+              />
             ))}
             <LabelList
               dataKey="admissions"
               position="top"
-              formatter={(value: number) => (value > 0 ? String(value) : "")}
+              // accept RenderableText (string | number | undefined) and normalize to number
+              formatter={(value: any) => {
+                const n = Number(value ?? 0);
+                return n > 0 ? String(n) : "";
+              }}
               style={{ fill: "#334155", fontSize: 13, fontWeight: 600 }}
             />
           </Bar>

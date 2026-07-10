@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { getCurrentUser } from "@/lib/queries/institute";
-import { logoutAction } from "@/lib/actions/logout-action";
+import { logoutAction } from "@/lib/action/logout-action";
 
 function initials(name: string): string {
   return name
@@ -31,10 +31,17 @@ export async function UserMenu() {
       </Avatar>
       <div className="hidden sm:block">
         <p className="text-sm font-medium text-slate-900">{user.name}</p>
-        <p className="text-xs text-slate-500">{user.role === "OWNER" ? "Administrator" : "Staff"}</p>
+        <p className="text-xs text-slate-500">
+          {user.role === "OWNER" ? "Administrator" : "Staff"}
+        </p>
       </div>
       <form action={logoutAction}>
-        <Button variant="ghost" size="sm" type="submit" className="gap-1.5 text-slate-500">
+        <Button
+          variant="ghost"
+          size="sm"
+          type="submit"
+          className="gap-1.5 text-slate-500"
+        >
           <LogOut className="h-3.5 w-3.5" />
         </Button>
       </form>

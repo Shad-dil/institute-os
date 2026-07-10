@@ -113,7 +113,10 @@ export function RecordPaymentDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="method">Payment Method</Label>
-            <Select value={method} onValueChange={setMethod}>
+            <Select
+              value={method}
+              onValueChange={(value) => value && setMethod(value)}
+            >
               <SelectTrigger id="method">
                 <SelectValue />
               </SelectTrigger>

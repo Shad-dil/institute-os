@@ -50,7 +50,10 @@ export function AttendanceFilters({
         <Select
           items={courses.map((c) => ({ value: c.id, label: c.name }))}
           value={courseId}
-          onValueChange={(v) => updateParams({ courseId: v })}
+          onValueChange={(v) => {
+            if (v === null) return;
+            updateParams({ courseId: v });
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a course" />
@@ -69,9 +72,10 @@ export function AttendanceFilters({
         <div className="w-full sm:w-56">
           <Select
             value={batchId || "all"}
-            onValueChange={(v) =>
-              updateParams({ batchId: v === "all" ? "" : v })
-            }
+            onValueChange={(v) => {
+              if (v === null) return;
+              updateParams({ batchId: v === "all" ? "" : v });
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="All batches" />

@@ -11,14 +11,22 @@ interface ToppersShareButtonProps {
   instituteName: string;
 }
 
-export function ToppersShareButton({ results, testName, maxMarks, instituteName }: ToppersShareButtonProps) {
+export function ToppersShareButton({
+  results,
+  testName,
+  maxMarks,
+  instituteName,
+}: ToppersShareButtonProps) {
   const topper = results
     .filter((r) => r.marksObtained !== null)
     .sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999))
     .slice(0, 5);
 
   const lines = topper
-    .map((r) => `${r.rank}. ${r.studentName} — ${r.marksObtained}/${maxMarks} (${r.percentage}%)`)
+    .map(
+      (r) =>
+        `${r.rank}. ${r.studentName} — ${r.marksObtained}/${maxMarks} (${r.percentage}%)`,
+    )
     .join("\n");
 
   const message = `🏆 ${instituteName} — Top Performers
@@ -37,7 +45,12 @@ Well done to all our students!`;
 
   if (topper.length === 0) {
     return (
-      <Button size="sm" variant="outline" disabled className="gap-1.5 text-slate-400">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled
+        className="gap-1.5 text-slate-400"
+      >
         <Trophy className="h-3.5 w-3.5" />
         Share Toppers List
       </Button>
@@ -45,7 +58,11 @@ Well done to all our students!`;
   }
 
   return (
-    <Button size="sm" variant="outline" asChild className="gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50">
+    <Button
+      size="sm"
+      variant="outline"
+      className="gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50"
+    >
       <a href={href} target="_blank" rel="noopener noreferrer">
         <Trophy className="h-3.5 w-3.5" />
         Share Toppers List

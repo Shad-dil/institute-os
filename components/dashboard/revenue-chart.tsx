@@ -1,6 +1,15 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LabelList, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  LabelList,
+  Cell,
+} from "recharts";
 import type { RevenuePoint } from "@/types/dashboard";
 
 interface RevenueChartProps {
@@ -28,8 +37,15 @@ export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 24, right: 8, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+        <BarChart
+          data={data}
+          margin={{ top: 24, right: 8, left: -16, bottom: 0 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#E2E8F0"
+            vertical={false}
+          />
           <XAxis
             dataKey="month"
             axisLine={false}
@@ -39,12 +55,18 @@ export function RevenueChart({ data }: RevenueChartProps) {
           <YAxis hide />
           <Bar dataKey="revenue" radius={[6, 6, 0, 0]} maxBarSize={44}>
             {data.map((_, index) => (
-              <Cell key={index} fill={index === lastIndex ? "#2563EB" : "#BFDBFE"} />
+              <Cell
+                key={index}
+                fill={index === lastIndex ? "#2563EB" : "#BFDBFE"}
+              />
             ))}
             <LabelList
               dataKey="revenue"
               position="top"
-              formatter={(value: number) => (value > 0 ? formatCompact(value) : "")}
+              formatter={(value: any) => {
+                const n = Number(value ?? 0);
+                return n > 0 ? String(n) : "";
+              }}
               style={{ fill: "#334155", fontSize: 13, fontWeight: 600 }}
             />
           </Bar>

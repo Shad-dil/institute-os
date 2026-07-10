@@ -32,7 +32,7 @@ interface NewTestDialogProps {
 
 export function NewTestDialog({ courses }: NewTestDialogProps) {
   const [open, setOpen] = useState(false);
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -50,7 +50,7 @@ export function NewTestDialog({ courses }: NewTestDialogProps) {
       if (result.success && result.testId) {
         toast.success("Test created — now enter marks");
         setOpen(false);
-        router.push(`/tests/${result.testId}`);
+        router.push(`/dashboard/tests/${result.testId}`);
       } else {
         toast.error(result.error ?? "Couldn't create the test");
       }
@@ -59,11 +59,9 @@ export function NewTestDialog({ courses }: NewTestDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-1.5">
-          <Plus className="h-4 w-4" />
-          New Test
-        </Button>
+      <DialogTrigger className="gap-1.5">
+        <Plus className="h-4 w-4" />
+        New Test
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

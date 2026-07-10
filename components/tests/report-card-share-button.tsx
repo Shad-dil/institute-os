@@ -30,7 +30,12 @@ export function ReportCardShareButton({
 
   if (!hasMarks || !targetPhone) {
     return (
-      <Button size="sm" variant="outline" disabled className="gap-1.5 text-slate-400">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled
+        className="gap-1.5 text-slate-400"
+      >
         <MessageCircle className="h-3.5 w-3.5" />
         Share
       </Button>
@@ -49,7 +54,11 @@ Keep up the good work!`;
   const href = `https://wa.me/${toWhatsAppNumber(targetPhone)}?text=${encodeURIComponent(message)}`;
 
   return (
-    <Button size="sm" variant="outline" asChild className="gap-1.5 border-green-200 text-green-700 hover:bg-green-50">
+    <Button
+      size="sm"
+      variant="outline"
+      className="gap-1.5 border-green-200 text-green-700 hover:bg-green-50"
+    >
       <a href={href} target="_blank" rel="noopener noreferrer">
         <MessageCircle className="h-3.5 w-3.5" />
         Share

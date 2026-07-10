@@ -11,6 +11,7 @@ interface SidebarItemProps {
   icon: LucideIcon;
   active?: boolean;
   collapsed?: boolean;
+  onClick?: () => void;
 }
 
 export default function SidebarItem({
@@ -19,10 +20,11 @@ export default function SidebarItem({
   icon: Icon,
   active,
   collapsed,
+  onClick,
 }: SidebarItemProps) {
   console.log(href);
   return (
-    <Link href={href}>
+    <Link href={href} onClick={onClick}>
       <motion.div
         whileHover={{ x: 4 }}
         whileTap={{ scale: 0.98 }}

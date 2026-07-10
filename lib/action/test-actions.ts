@@ -18,7 +18,9 @@ export interface CreateTestResult {
   testId?: string;
 }
 
-export async function createTest(formData: FormData): Promise<CreateTestResult> {
+export async function createTest(
+  formData: FormData,
+): Promise<CreateTestResult> {
   const parsed = createTestSchema.safeParse({
     courseId: formData.get("courseId"),
     name: formData.get("name"),
@@ -27,7 +29,10 @@ export async function createTest(formData: FormData): Promise<CreateTestResult> 
   });
 
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
   }
 
   try {
@@ -50,10 +55,13 @@ export async function createTest(formData: FormData): Promise<CreateTestResult> 
     const test = await prisma.test.create({
       data: { ...parsed.data, instituteId },
     });
-    revalidatePath("/tests");
+    revalidatePath("/dashboard/tests");
     return { success: true, testId: test.id };
   } catch {
-    return { success: false, error: "Couldn't create the test. Please try again." };
+    return {
+      success: false,
+      error: "Couldn't create the test. Please try again.",
+    };
   }
 }
 
@@ -65,7 +73,9 @@ const marksEntrySchema = z.object({
 const saveMarksSchema = z.object({
   testId: z.string().min(1),
   maxMarks: z.number().positive(),
-  entries: z.array(marksEntrySchema).min(1, "Enter at least one student's marks"),
+  entries: z
+    .array(marksEntrySchema)
+    .min(1, "Enter at least one student's marks"),
 });
 
 export interface SaveMarksResult {
@@ -77,17 +87,25 @@ export interface SaveMarksResult {
 export async function saveMarks(
   testId: string,
   maxMarks: number,
-  entries: { studentId: string; marksObtained: number }[]
+  entries: { studentId: string; marksObtained: number }[],
 ): Promise<SaveMarksResult> {
   const parsed = saveMarksSchema.safeParse({ testId, maxMarks, entries });
 
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
   }
 
-  const overMax = parsed.data.entries.find((e) => e.marksObtained > parsed.data.maxMarks);
+  const overMax = parsed.data.entries.find(
+    (e) => e.marksObtained > parsed.data.maxMarks,
+  );
   if (overMax) {
-    return { success: false, error: `Marks can't exceed the maximum (${parsed.data.maxMarks}).` };
+    return {
+      success: false,
+      error: `Marks can't exceed the maximum (${parsed.data.maxMarks}).`,
+    };
   }
 
   try {
@@ -104,19 +122,24 @@ export async function saveMarks(
     await prisma.$transaction(
       parsed.data.entries.map((entry) =>
         prisma.testResult.upsert({
-          where: { testId_studentId: { testId: parsed.data.testId, studentId: entry.studentId } },
+          where: {
+            testId_studentId: {
+              testId: parsed.data.testId,
+              studentId: entry.studentId,
+            },
+          },
           update: { marksObtained: entry.marksObtained },
           create: {
             testId: parsed.data.testId,
             studentId: entry.studentId,
             marksObtained: entry.marksObtained,
           },
-        })
-      )
+        }),
+      ),
     );
 
-    revalidatePath(`/tests/${testId}`);
-    revalidatePath("/tests");
+    revalidatePath(`/dashboard/tests/${testId}`);
+    revalidatePath("/dashboard/tests");
 
     return { success: true, savedCount: parsed.data.entries.length };
   } catch {

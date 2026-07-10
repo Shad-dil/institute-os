@@ -1,17 +1,25 @@
 export type DeltaTone = "positive" | "negative" | "neutral";
 
-export type StatIconName = "students" | "attendance" | "pendingFees" | "revenue" | "admissions";
+export type StatIconName =
+  | "students"
+  | "attendance"
+  | "pendingFees"
+  | "revenue"
+  | "admissions";
 
 export interface StatCardData {
   id: string;
   label: string;
   value: string;
+  sparkline: number[];
   // Plain-language change instead of a percentage — e.g. "5 new this
   // month", "Same as yesterday", "+₹5,500 vs last month". Tier-3-city
   // institute owners read "5 more students" instantly; "+100%" from a
   // base of near-zero students just confuses.
-  deltaText: string;
-  deltaTone: DeltaTone;
+  change: number;
+  direction: string;
+  deltaText?: string;
+  deltaTone?: DeltaTone;
   icon: StatIconName;
   accent: "blue" | "green" | "amber" | "red" | "violet";
 }
@@ -19,6 +27,7 @@ export interface StatCardData {
 export interface RevenuePoint {
   month: string;
   revenue: number;
+  target: number;
 }
 
 export interface AdmissionsPoint {
@@ -79,5 +88,6 @@ export interface Announcement {
 export interface QuickAction {
   id: string;
   label: string;
+  icon: any;
   href: string;
 }

@@ -21,24 +21,19 @@ import { createAdmission } from "@/lib/action/admission-actions";
 
 const admissionFormSchema = z.object({
   name: z.string().min(2, "Enter the student's full name"),
-  email: z.string().email("Enter a valid email").optional().or(z.literal("")),
+  email: z.string().email("Enter a valid email").or(z.literal("")),
   phone: z.string().regex(/^\d{10}$/, "Enter a valid 10-digit phone number"),
-  parentName: z.string().optional().or(z.literal("")),
+  parentName: z.string().or(z.literal("")),
   parentPhone: z
     .string()
-    .optional()
-    .or(z.literal(""))
-    .refine((v) => !v || /^\d{10}$/.test(v), {
-      message: "Enter a valid 10-digit phone number",
-    }),
+    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number")
+    .or(z.literal("")),
   courseId: z.string().min(1, "Select a course"),
-  batchId: z.string().optional().or(z.literal("")),
+  batchId: z.string().or(z.literal("")),
   feeAmount: z.coerce.number().positive("Fee must be greater than 0"),
   dueDate: z.string().min(1, "Select a due date"),
-  advanceAmount: z.coerce.number().min(0).default(0),
-  advanceMethod: z
-    .enum(["CASH", "UPI", "CARD", "BANK_TRANSFER", "OTHER"])
-    .default("CASH"),
+  advanceAmount: z.coerce.number().min(0),
+  advanceMethod: z.enum(["CASH", "UPI", "CARD", "BANK_TRANSFER", "OTHER"]),
 });
 
 const STEP_FIELDS: (keyof AdmissionFormValues)[][] = [

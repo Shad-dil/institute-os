@@ -8,7 +8,7 @@ import { Users, Clock, IndianRupee, Trash2 } from "lucide-react";
 import { CourseFormDialog } from "@/components/courses/course-form-dialog";
 import { BatchFormDialog } from "@/components/courses/batch-form-dialog";
 import { ConfirmationDialog } from "@/components/ui-extra/confirmation-dialog";
-import { deleteCourse, deleteBatch } from "@/lib/actions/courses-actions";
+import { deleteCourse, deleteBatch } from "@/lib/action/courses-actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { CourseSummary, BatchSummary } from "@/types/courses";
@@ -58,13 +58,15 @@ export function CourseCard({ course }: CourseCardProps) {
             <h3 className="font-semibold text-slate-900">{course.name}</h3>
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
               <span className="flex items-center gap-1">
-                <IndianRupee className="h-3 w-3" /> ₹{course.fees.toLocaleString("en-IN")}
+                <IndianRupee className="h-3 w-3" /> ₹
+                {course.fees.toLocaleString("en-IN")}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" /> {course.duration}
               </span>
               <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" /> {course.studentCount} student{course.studentCount === 1 ? "" : "s"}
+                <Users className="h-3 w-3" /> {course.studentCount} student
+                {course.studentCount === 1 ? "" : "s"}
               </span>
             </div>
           </div>
@@ -91,8 +93,8 @@ export function CourseCard({ course }: CourseCardProps) {
 
           {course.batches.length === 0 ? (
             <p className="text-sm text-slate-400">
-              No batches yet — students admitted into this course won&apos;t be assigned to a specific batch
-              until you add one.
+              No batches yet — students admitted into this course won&apos;t be
+              assigned to a specific batch until you add one.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -102,16 +104,24 @@ export function CourseCard({ course }: CourseCardProps) {
                   className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2.5"
                 >
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{batch.name}</p>
+                    <p className="text-sm font-medium text-slate-900">
+                      {batch.name}
+                    </p>
                     <p className="text-xs text-slate-500">{batch.schedule}</p>
                     {batch.facultyName && (
-                      <p className="text-xs text-slate-400">Faculty: {batch.facultyName}</p>
+                      <p className="text-xs text-slate-400">
+                        Faculty: {batch.facultyName}
+                      </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-slate-200 text-xs font-normal text-slate-500">
+                    <Badge
+                      variant="outline"
+                      className="border-slate-200 text-xs font-normal text-slate-500"
+                    >
                       {batch.studentCount}
-                      {batch.capacity !== null ? `/${batch.capacity}` : ""} enrolled
+                      {batch.capacity !== null ? `/${batch.capacity}` : ""}{" "}
+                      enrolled
                     </Badge>
                     <BatchFormDialog courseId={course.id} batch={batch} />
                     <Button

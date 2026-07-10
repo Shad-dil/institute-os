@@ -27,17 +27,21 @@ export function WhatsAppReminderButton({
   instituteName = "your institute",
 }: WhatsAppReminderButtonProps) {
   const message = `Hi ${studentName}, this is a reminder from ${instituteName} — your fee payment of ₹${amountDue.toLocaleString(
-    "en-IN"
+    "en-IN",
   )} was due on ${dueDate}. Please pay at your earliest convenience. Thank you!`;
 
   const href = `https://wa.me/${toWhatsAppNumber(phone)}?text=${encodeURIComponent(message)}`;
 
   return (
-    <Button variant="outline" size="sm" asChild className="gap-1.5 border-green-200 text-green-700 hover:bg-green-50">
-      <a href={href} target="_blank" rel="noopener noreferrer">
-        <MessageCircle className="h-3.5 w-3.5" />
-        Remind
-      </a>
+    <Button
+      variant="outline"
+      size="sm"
+      type="button"
+      className="gap-1.5 border-green-200 text-green-700 hover:bg-green-50"
+      onClick={() => window.open(href, "_blank", "noopener,noreferrer")}
+    >
+      <MessageCircle className="h-3.5 w-3.5" />
+      Remind
     </Button>
   );
 }

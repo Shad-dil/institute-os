@@ -11,13 +11,30 @@ import type {
 } from "@/types/dashboard";
 
 const MONTH_LABELS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const COURSE_COLORS = ["#2563EB", "#22C55E", "#F59E0B", "#8B5CF6", "#EF4444", "#0EA5E9"];
+const COURSE_COLORS = [
+  "#2563EB",
+  "#22C55E",
+  "#F59E0B",
+  "#8B5CF6",
+  "#EF4444",
+  "#0EA5E9",
+];
 
 function toNumber(value: unknown): number {
   return value === null || value === undefined ? 0 : Number(value);
@@ -41,7 +58,11 @@ function monthRange(monthsAgo: number) {
 
 function dayRange(daysAgo: number) {
   const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysAgo);
+  const start = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - daysAgo,
+  );
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
   return { start, end };
@@ -54,12 +75,16 @@ function countDelta(
   current: number,
   previous: number,
   unitPlural: string,
-  higherIsGood = true
+  higherIsGood = true,
 ): { deltaText: string; deltaTone: DeltaTone } {
   const diff = current - previous;
-  if (diff === 0) return { deltaText: "Same as last month", deltaTone: "neutral" };
+  if (diff === 0)
+    return { deltaText: "Same as last month", deltaTone: "neutral" };
   if (previous === 0) {
-    return { deltaText: `${current} new this month`, deltaTone: higherIsGood ? "positive" : "neutral" };
+    return {
+      deltaText: `${current} new this month`,
+      deltaTone: higherIsGood ? "positive" : "neutral",
+    };
   }
   const isGood = higherIsGood ? diff > 0 : diff < 0;
   const word = diff > 0 ? "more" : "fewer";
@@ -69,11 +94,17 @@ function countDelta(
   };
 }
 
-function rupeeDelta(current: number, previous: number): { deltaText: string; deltaTone: DeltaTone } {
+function rupeeDelta(
+  current: number,
+  previous: number,
+): { deltaText: string; deltaTone: DeltaTone } {
   const diff = current - previous;
-  if (previous === 0 && current === 0) return { deltaText: "No collections yet", deltaTone: "neutral" };
-  if (previous === 0) return { deltaText: "First month of collection", deltaTone: "positive" };
-  if (diff === 0) return { deltaText: "Same as last month", deltaTone: "neutral" };
+  if (previous === 0 && current === 0)
+    return { deltaText: "No collections yet", deltaTone: "neutral" };
+  if (previous === 0)
+    return { deltaText: "First month of collection", deltaTone: "positive" };
+  if (diff === 0)
+    return { deltaText: "Same as last month", deltaTone: "neutral" };
   const sign = diff > 0 ? "+" : "-";
   return {
     deltaText: `${sign}₹${Math.abs(diff).toLocaleString("en-IN")} vs last month`,
@@ -85,7 +116,9 @@ function rupeeDelta(current: number, previous: number): { deltaText: string; del
 // Stat cards
 // ---------------------------------------------------------------------------
 
-export async function getStatCards(instituteId: string): Promise<StatCardData[]> {
+export async function getStatCards(
+  instituteId: string,
+): Promise<StatCardData[]> {
   const { start: thisMonthStart } = monthRange(0);
   const { start: lastMonthStart, end: lastMonthEnd } = monthRange(1);
   const { start: todayStart, end: todayEnd } = dayRange(0);
@@ -104,35 +137,64 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
   ] = await Promise.all([
     prisma.student.count({ where: { instituteId } }),
     prisma.attendance.findMany({
-      where: { date: { gte: todayStart, lt: todayEnd }, student: { instituteId } },
+      where: {
+        date: { gte: todayStart, lt: todayEnd },
+        student: { instituteId },
+      },
       select: { status: true },
     }),
     prisma.attendance.findMany({
-      where: { date: { gte: yesterdayStart, lt: yesterdayEnd }, student: { instituteId } },
+      where: {
+        date: { gte: yesterdayStart, lt: yesterdayEnd },
+        student: { instituteId },
+      },
       select: { status: true },
     }),
     prisma.invoice.aggregate({
-      where: { status: { in: ["PENDING", "OVERDUE"] }, student: { instituteId } },
+      where: {
+        status: { in: ["PENDING", "OVERDUE"] },
+        student: { instituteId },
+      },
       _sum: { amount: true },
     }),
     prisma.student.count({
-      where: { instituteId, invoices: { some: { status: { in: ["PENDING", "OVERDUE"] } } } },
+      where: {
+        instituteId,
+        invoices: { some: { status: { in: ["PENDING", "OVERDUE"] } } },
+      },
     }),
     prisma.invoice.aggregate({
-      where: { status: "PAID", paidAt: { gte: thisMonthStart }, student: { instituteId } },
+      where: {
+        status: "PAID",
+        paidAt: { gte: thisMonthStart },
+        student: { instituteId },
+      },
       _sum: { amount: true },
     }),
     prisma.invoice.aggregate({
-      where: { status: "PAID", paidAt: { gte: lastMonthStart, lt: lastMonthEnd }, student: { instituteId } },
+      where: {
+        status: "PAID",
+        paidAt: { gte: lastMonthStart, lt: lastMonthEnd },
+        student: { instituteId },
+      },
       _sum: { amount: true },
     }),
-    prisma.student.count({ where: { instituteId, joinedAt: { gte: thisMonthStart } } }),
-    prisma.student.count({ where: { instituteId, joinedAt: { gte: lastMonthStart, lt: lastMonthEnd } } }),
+    prisma.student.count({
+      where: { instituteId, joinedAt: { gte: thisMonthStart } },
+    }),
+    prisma.student.count({
+      where: {
+        instituteId,
+        joinedAt: { gte: lastMonthStart, lt: lastMonthEnd },
+      },
+    }),
   ]);
 
   const attendancePct = (records: { status: string }[]) => {
     if (records.length === 0) return 0;
-    const present = records.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
+    const present = records.filter(
+      (r) => r.status === "PRESENT" || r.status === "LATE",
+    ).length;
     return Math.round((present / records.length) * 100);
   };
 
@@ -142,7 +204,10 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
 
   let attendanceDelta: { deltaText: string; deltaTone: DeltaTone };
   if (todayAttendance.length === 0) {
-    attendanceDelta = { deltaText: "Not marked yet today", deltaTone: "neutral" };
+    attendanceDelta = {
+      deltaText: "Not marked yet today",
+      deltaTone: "neutral",
+    };
   } else if (attendancePointDiff === 0) {
     attendanceDelta = { deltaText: "Same as yesterday", deltaTone: "neutral" };
   } else {
@@ -176,6 +241,9 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
       deltaTone: admissionsThisMonth > 0 ? "positive" : "neutral",
       icon: "students",
       accent: "blue",
+      sparkline: [],
+      change: 0,
+      direction: "neutral",
     },
     {
       id: "todays-attendance",
@@ -185,6 +253,9 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
       deltaTone: attendanceDelta.deltaTone,
       icon: "attendance",
       accent: "green",
+      sparkline: [],
+      change: 0,
+      direction: "neutral",
     },
     {
       id: "pending-fees",
@@ -194,6 +265,9 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
       deltaTone: pendingDelta.deltaTone,
       icon: "pendingFees",
       accent: "amber",
+      sparkline: [],
+      change: 0,
+      direction: "neutral",
     },
     {
       id: "monthly-revenue",
@@ -202,6 +276,9 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
       ...rupeeDelta(revenueThisMonth, revenueLastMonth),
       icon: "revenue",
       accent: "violet",
+      sparkline: [],
+      change: 0,
+      direction: "neutral",
     },
     {
       id: "new-admissions",
@@ -210,6 +287,9 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
       ...countDelta(admissionsThisMonth, admissionsLastMonth, "admissions"),
       icon: "admissions",
       accent: "red",
+      sparkline: [],
+      change: 0,
+      direction: "neutral",
     },
   ];
 }
@@ -218,16 +298,27 @@ export async function getStatCards(instituteId: string): Promise<StatCardData[]>
 // Monthly collection — last N months, PAID invoices grouped by month
 // ---------------------------------------------------------------------------
 
-export async function getRevenueTrend(instituteId: string, months = 6): Promise<RevenuePoint[]> {
+export async function getRevenueTrend(
+  instituteId: string,
+  months = 6,
+): Promise<RevenuePoint[]> {
   const points: RevenuePoint[] = [];
 
   for (let i = months - 1; i >= 0; i--) {
     const { start, end } = monthRange(i);
     const agg = await prisma.invoice.aggregate({
-      where: { status: "PAID", paidAt: { gte: start, lt: end }, student: { instituteId } },
+      where: {
+        status: "PAID",
+        paidAt: { gte: start, lt: end },
+        student: { instituteId },
+      },
       _sum: { amount: true },
     });
-    points.push({ month: MONTH_LABELS[start.getMonth()], revenue: toNumber(agg._sum.amount) });
+    points.push({
+      month: MONTH_LABELS[start.getMonth()],
+      revenue: toNumber(agg._sum.amount),
+      target: 0,
+    });
   }
 
   return points;
@@ -237,7 +328,10 @@ export async function getRevenueTrend(instituteId: string, months = 6): Promise<
 // Admissions trend
 // ---------------------------------------------------------------------------
 
-export async function getAdmissionsTrend(instituteId: string, months = 6): Promise<AdmissionsPoint[]> {
+export async function getAdmissionsTrend(
+  instituteId: string,
+  months = 6,
+): Promise<AdmissionsPoint[]> {
   const points: AdmissionsPoint[] = [];
 
   for (let i = months - 1; i >= 0; i--) {
@@ -255,7 +349,10 @@ export async function getAdmissionsTrend(instituteId: string, months = 6): Promi
 // Attendance for the last 6 days
 // ---------------------------------------------------------------------------
 
-export async function getAttendanceWeek(instituteId: string, days = 6): Promise<AttendancePoint[]> {
+export async function getAttendanceWeek(
+  instituteId: string,
+  days = 6,
+): Promise<AttendancePoint[]> {
   const points: AttendancePoint[] = [];
 
   for (let i = days - 1; i >= 0; i--) {
@@ -264,7 +361,9 @@ export async function getAttendanceWeek(instituteId: string, days = 6): Promise<
       where: { date: { gte: start, lt: end }, student: { instituteId } },
       select: { status: true },
     });
-    const present = records.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
+    const present = records.filter(
+      (r) => r.status === "PRESENT" || r.status === "LATE",
+    ).length;
     const absent = records.filter((r) => r.status === "ABSENT").length;
     points.push({ day: DAY_LABELS[start.getDay()], present, absent });
   }
@@ -276,7 +375,9 @@ export async function getAttendanceWeek(instituteId: string, days = 6): Promise<
 // Course distribution — student count per course
 // ---------------------------------------------------------------------------
 
-export async function getCourseDistribution(instituteId: string): Promise<CourseDistributionSlice[]> {
+export async function getCourseDistribution(
+  instituteId: string,
+): Promise<CourseDistributionSlice[]> {
   const courses = await prisma.course.findMany({
     where: { instituteId },
     select: { name: true, _count: { select: { students: true } } },
@@ -296,25 +397,47 @@ export async function getCourseDistribution(instituteId: string): Promise<Course
 // Recent activity — merges recent admissions, payments, attendance marks
 // ---------------------------------------------------------------------------
 
-export async function getRecentActivity(instituteId: string, limit = 8): Promise<ActivityItem[]> {
+export async function getRecentActivity(
+  instituteId: string,
+  limit = 8,
+): Promise<ActivityItem[]> {
   const [recentStudents, recentPayments, recentAttendance] = await Promise.all([
     prisma.student.findMany({
       where: { instituteId },
       orderBy: { joinedAt: "desc" },
       take: limit,
-      select: { id: true, name: true, joinedAt: true, course: { select: { name: true } } },
+      select: {
+        id: true,
+        name: true,
+        joinedAt: true,
+        course: { select: { name: true } },
+      },
     }),
     prisma.invoice.findMany({
-      where: { status: "PAID", paidAt: { not: null }, student: { instituteId } },
+      where: {
+        status: "PAID",
+        paidAt: { not: null },
+        student: { instituteId },
+      },
       orderBy: { paidAt: "desc" },
       take: limit,
-      select: { id: true, amount: true, paidAt: true, student: { select: { name: true } } },
+      select: {
+        id: true,
+        amount: true,
+        paidAt: true,
+        student: { select: { name: true } },
+      },
     }),
     prisma.attendance.findMany({
       where: { student: { instituteId } },
       orderBy: { createdAt: "desc" },
       take: limit,
-      select: { id: true, status: true, createdAt: true, student: { select: { name: true } } },
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        student: { select: { name: true } },
+      },
     }),
   ]);
 
@@ -350,9 +473,14 @@ export async function getRecentActivity(instituteId: string, limit = 8): Promise
   ];
 
   return items
-    .sort((a, b) => new Date(b.sortKey).getTime() - new Date(a.sortKey).getTime())
+    .sort(
+      (a, b) => new Date(b.sortKey).getTime() - new Date(a.sortKey).getTime(),
+    )
     .slice(0, limit)
-    .map(({ sortKey: _sortKey, ...item }) => ({ ...item, timestamp: formatRelativeTime(item.timestamp) }));
+    .map(({ sortKey: _sortKey, ...item }) => ({
+      ...item,
+      timestamp: formatRelativeTime(item.timestamp),
+    }));
 }
 
 function formatRelativeTime(isoTimestamp: string): string {
@@ -370,7 +498,10 @@ function formatRelativeTime(isoTimestamp: string): string {
 // Upcoming fee dues
 // ---------------------------------------------------------------------------
 
-export async function getUpcomingFeeDues(instituteId: string, limit = 5): Promise<UpcomingFeeDue[]> {
+export async function getUpcomingFeeDues(
+  instituteId: string,
+  limit = 5,
+): Promise<UpcomingFeeDue[]> {
   const invoices = await prisma.invoice.findMany({
     where: { status: { in: ["PENDING", "OVERDUE"] }, student: { instituteId } },
     orderBy: { dueDate: "asc" },
@@ -388,7 +519,11 @@ export async function getUpcomingFeeDues(instituteId: string, limit = 5): Promis
     studentName: inv.student.name,
     course: inv.student.course.name,
     amount: `₹${toNumber(inv.amount).toLocaleString("en-IN")}`,
-    dueDate: inv.dueDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+    dueDate: inv.dueDate.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
     avatarInitials: initials(inv.student.name),
   }));
 }

@@ -19,7 +19,7 @@ export default async function TestsPage() {
       <PageHeader
         title="Tests & Results"
         description="Enter marks after each test, share results with parents in one tap."
-        action={<NewTestDialog instituteId={instituteId} courses={courses} />}
+        action={<NewTestDialog courses={courses} />}
       />
 
       <TestsListTable tests={tests} />

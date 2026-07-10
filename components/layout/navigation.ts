@@ -8,6 +8,7 @@ import {
   BookOpen,
   FileBarChart,
   Settings,
+  Notebook,
 } from "lucide-react";
 
 export const navigation = [
@@ -37,9 +38,9 @@ export const navigation = [
     icon: Wallet,
   },
   {
-    title: "Teachers",
-    href: "/teachers",
-    icon: GraduationCap,
+    title: "Courses",
+    href: "/dashboard/courses",
+    icon: Notebook,
   },
   {
     title: "Tests",

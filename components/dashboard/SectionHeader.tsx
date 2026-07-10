@@ -24,12 +24,7 @@ export function SectionHeader({
         )}
       </div>
 
-      {action && (
-        <Button variant="outline" onClick={action.onClick}>
-          {action.icon}
-          {action.label}
-        </Button>
-      )}
+      {action && action}
     </div>
   );
 }

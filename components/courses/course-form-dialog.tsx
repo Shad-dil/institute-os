@@ -48,18 +48,17 @@ export function CourseFormDialog({ course }: CourseFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        variant={isEdit ? "ghost" : "default"}
+        size={isEdit ? "sm" : "default"}
+        className={isEdit ? "gap-1.5 text-slate-500" : "gap-1.5"}
+      >
         {isEdit ? (
-          <Button variant="ghost" size="sm" className="gap-1.5 text-slate-500">
-            <Pencil className="h-3.5 w-3.5" />
-            Edit
-          </Button>
+          <Pencil className="h-3.5 w-3.5" />
         ) : (
-          <Button className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Add Course
-          </Button>
+          <Plus className="h-4 w-4" />
         )}
+        {isEdit ? "Edit" : "Add Course"}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

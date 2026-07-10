@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil } from "lucide-react";
-import { createBatch, updateBatch } from "@/lib/actions/courses-actions";
+import { createBatch, updateBatch } from "@/lib/action/courses-actions";
 import { toast } from "sonner";
 import type { BatchSummary } from "@/types/courses";
 
@@ -34,7 +34,10 @@ export function BatchFormDialog({ courseId, batch }: BatchFormDialogProps) {
     formData.set("courseId", courseId);
 
     startTransition(async () => {
-      const result = isEdit && batch ? await updateBatch(batch.id, formData) : await createBatch(formData);
+      const result =
+        isEdit && batch
+          ? await updateBatch(batch.id, formData)
+          : await createBatch(formData);
       if (result.success) {
         toast.success(isEdit ? "Batch updated" : "Batch created");
         setOpen(false);
@@ -46,24 +49,25 @@ export function BatchFormDialog({ courseId, batch }: BatchFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        variant={isEdit ? "ghost" : "outline"}
+        size="sm"
+        className={isEdit ? "h-7 gap-1 px-2 text-xs text-slate-500" : "gap-1.5"}
+      >
         {isEdit ? (
-          <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs text-slate-500">
-            <Pencil className="h-3 w-3" />
-            Edit
-          </Button>
+          <Pencil className="h-3 w-3" />
         ) : (
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <Plus className="h-3.5 w-3.5" />
-            Add Batch
-          </Button>
+          <Plus className="h-3.5 w-3.5" />
         )}
+        {isEdit ? "Edit" : "Add Batch"}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Batch" : "Add Batch"}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Update this batch's details." : "Create a new batch under this course."}
+            {isEdit
+              ? "Update this batch's details."
+              : "Create a new batch under this course."}
           </DialogDescription>
         </DialogHeader>
 
@@ -93,11 +97,23 @@ export function BatchFormDialog({ courseId, batch }: BatchFormDialogProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="facultyName">Faculty (optional)</Label>
-              <Input id="facultyName" name="facultyName" defaultValue={batch?.facultyName ?? ""} placeholder="e.g. Amit Deshmukh" />
+              <Input
+                id="facultyName"
+                name="facultyName"
+                defaultValue={batch?.facultyName ?? ""}
+                placeholder="e.g. Amit Deshmukh"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="capacity">Capacity (optional)</Label>
-              <Input id="capacity" name="capacity" type="number" min={1} defaultValue={batch?.capacity ?? ""} placeholder="e.g. 30" />
+              <Input
+                id="capacity"
+                name="capacity"
+                type="number"
+                min={1}
+                defaultValue={batch?.capacity ?? ""}
+                placeholder="e.g. 30"
+              />
             </div>
           </div>
 
@@ -107,7 +123,11 @@ export function BatchFormDialog({ courseId, batch }: BatchFormDialogProps) {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>

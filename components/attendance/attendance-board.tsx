@@ -15,7 +15,10 @@ import type {
   AttendanceStudentRow,
   AttendanceStatus,
 } from "@/types/attendance";
-import { markAttendance } from "@/lib/action/attendance-actions";
+import {
+  markAttendance,
+  markAllPresent,
+} from "@/lib/action/attendance-actions";
 
 interface AttendanceBoardProps {
   courseId: string;

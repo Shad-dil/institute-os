@@ -18,7 +18,7 @@ export default async function StudentsPage() {
         title="Students"
         description={`${students.length} student${students.length === 1 ? "" : "s"} enrolled`}
         action={
-          <Button asChild className="gap-1.5">
+          <Button className="gap-1.5">
             <Link href="/dashboard/admissions">
               <UserPlus className="h-4 w-4" />
               Add Student
