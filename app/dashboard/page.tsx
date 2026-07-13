@@ -24,22 +24,33 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const instituteId = await getCurrentInstituteId();
 
-  const [statCards, revenueTrend, admissionsTrend, attendanceWeek, courseDistribution, recentActivity, upcomingFeeDues] =
-    await Promise.all([
-      getStatCards(instituteId),
-      getRevenueTrend(instituteId),
-      getAdmissionsTrend(instituteId),
-      getAttendanceWeek(instituteId),
-      getCourseDistribution(instituteId),
-      getRecentActivity(instituteId),
-      getUpcomingFeeDues(instituteId),
-    ]);
+  const [
+    statCards,
+    revenueTrend,
+    admissionsTrend,
+    attendanceWeek,
+    courseDistribution,
+    recentActivity,
+    upcomingFeeDues,
+  ] = await Promise.all([
+    getStatCards(instituteId),
+    getRevenueTrend(instituteId),
+    getAdmissionsTrend(instituteId),
+    getAttendanceWeek(instituteId),
+    getCourseDistribution(instituteId),
+    getRecentActivity(instituteId),
+    getUpcomingFeeDues(instituteId),
+  ]);
 
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Welcome Back 👋</h1>
-        <p className="mt-1 text-sm text-slate-500">Today looks like a productive day.</p>
+        <h1 className="text-xl font-semibold text-slate-900">
+          Welcome Back 👋
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Today looks like a productive day.
+        </p>
       </div>
 
       <QuickActions />
@@ -51,29 +62,40 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <ChartCard title="Money Collected" description="Fees collected each month" className="lg:col-span-2">
+        <ChartCard
+          title="Money Collected"
+          description="Fees collected each month"
+          className="lg:col-span-2"
+        >
           <RevenueChart data={revenueTrend} />
         </ChartCard>
-        <ChartCard title="Students by Course" description="How many in each course">
+        <ChartCard
+          title="Students by Course"
+          description="How many in each course"
+        >
           <CourseDistributionChart data={courseDistribution} />
         </ChartCard>
       </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartCard title="New Admissions" description="Students joined each month">
-          <AdmissionsChart data={admissionsTrend} />
-        </ChartCard>
-        <ChartCard title="Attendance This Week" description="Who showed up, who didn't">
-          <AttendanceChart data={attendanceWeek} />
-        </ChartCard>
-      </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2 h-100 overflow-x-scroll">
           <RecentActivityFeed items={recentActivity} />
-          <AnnouncementsCard />
+          {/* <AnnouncementsCard /> */}
         </div>
         <UpcomingPanel fees={upcomingFeeDues} />
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ChartCard
+          title="New Admissions"
+          description="Students joined each month"
+        >
+          <AdmissionsChart data={admissionsTrend} />
+        </ChartCard>
+        <ChartCard
+          title="Attendance This Week"
+          description="Who showed up, who didn't"
+        >
+          <AttendanceChart data={attendanceWeek} />
+        </ChartCard>
       </div>
     </div>
   );

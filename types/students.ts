@@ -48,6 +48,7 @@ export interface StudentProfile {
   avatarInitials: string;
   email: string | null;
   phone: string;
+  photoUrl: string | null;
   parentName: string | null;
   parentPhone: string | null;
   course: string;

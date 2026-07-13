@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "../auth/logout-button";
+// import { NotificationBell } from "../notifications/notification-bell";
 
 interface TopNavbarProps {
   onOpenSidebar: () => void;
@@ -62,6 +63,7 @@ export default function TopNavbar({ onOpenSidebar }: TopNavbarProps) {
           {/* Mobile Search */}
 
           {/* Quick Add */}
+          {/* <NotificationBell /> */}
 
           <LogoutButton />
 

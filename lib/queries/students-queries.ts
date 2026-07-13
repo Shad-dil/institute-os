@@ -41,7 +41,7 @@ function worstStatus(statuses: FeeStatus[]): FeeStatus | "NO_INVOICE" {
 export async function getStudents(instituteId: string): Promise<StudentRow[]> {
   const students = await prisma.student.findMany({
     where: { instituteId },
-    orderBy: { name: "asc" },
+    orderBy: { joinedAt: "desc" },
     select: {
       id: true,
       name: true,
@@ -99,6 +99,7 @@ export async function getStudentProfile(
       name: true,
       email: true,
       phone: true,
+      photoUrl: true,
       parentName: true,
       parentPhone: true,
       joinedAt: true,
@@ -201,6 +202,7 @@ export async function getStudentProfile(
     avatarInitials: initials(student.name),
     email: student.email,
     phone: student.phone,
+    photoUrl: student.photoUrl,
     parentName: student.parentName,
     parentPhone: student.parentPhone,
     course: student.course.name,

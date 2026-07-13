@@ -48,13 +48,13 @@ export const navigation = [
     icon: BookOpen,
   },
   {
-    title: "Reports",
-    href: "/reports",
+    title: "Inquiry",
+    href: "/dashboard/inquiries",
     icon: FileBarChart,
   },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+  // {
+  //   title: "Settings",
+  //   href: "/settings",
+  //   icon: Settings,
+  // },
 ];

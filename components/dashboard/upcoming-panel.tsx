@@ -13,7 +13,9 @@ export function UpcomingPanel({ fees }: UpcomingPanelProps) {
   return (
     <div className="space-y-6">
       <Card className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Upcoming Fee Dues</h3>
+        <h3 className="text-sm font-semibold text-slate-900">
+          Upcoming Fee Dues
+        </h3>
         {fees.length === 0 ? (
           <p className="mt-4 text-sm text-slate-400">No pending dues 🎉</p>
         ) : (
@@ -26,11 +28,17 @@ export function UpcomingPanel({ fees }: UpcomingPanelProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-900">{due.studentName}</p>
-                  <p className="truncate text-xs text-slate-500">{due.course}</p>
+                  <p className="truncate text-sm font-medium text-slate-900">
+                    {due.studentName}
+                  </p>
+                  <p className="truncate text-xs text-slate-500">
+                    {due.course}
+                  </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold text-slate-900">{due.amount}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {due.amount}
+                  </p>
                   <p className="text-[11px] text-slate-400">{due.dueDate}</p>
                 </div>
               </li>
@@ -42,7 +50,7 @@ export function UpcomingPanel({ fees }: UpcomingPanelProps) {
       {/* TODO: no Batch model in the schema yet — this section is still
           mock data. Add a Batch model (name, course, schedule, faculty,
           capacity) and swap this for a real query when it exists. */}
-      <Card className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* <Card className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-900">Upcoming Batches</h3>
           <Badge variant="outline" className="border-slate-200 text-[10px] font-normal text-slate-400">
@@ -73,7 +81,7 @@ export function UpcomingPanel({ fees }: UpcomingPanelProps) {
             </li>
           ))}
         </ul>
-      </Card>
+      </Card> */}
     </div>
   );
 }

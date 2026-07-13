@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AdmissionFormValues } from "@/types/admission";
@@ -8,6 +8,7 @@ import type { AdmissionFormValues } from "@/types/admission";
 export function StudentInfoStep() {
   const {
     register,
+    control,
     formState: { errors },
   } = useFormContext<AdmissionFormValues>();
 
@@ -15,20 +16,64 @@ export function StudentInfoStep() {
     <div className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">Full Name</Label>
-        <Input id="name" {...register("name")} placeholder="e.g. Ananya Sharma" />
-        {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+        <Input
+          id="name"
+          {...register("name")}
+          placeholder="e.g. Ananya Sharma"
+        />
+        {errors.name && (
+          <p className="text-xs text-red-600">{errors.name.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="phone">Phone Number</Label>
-        <Input id="phone" {...register("phone")} placeholder="10-digit mobile number" maxLength={10} />
-        {errors.phone && <p className="text-xs text-red-600">{errors.phone.message}</p>}
+        <Input
+          id="phone"
+          {...register("phone")}
+          placeholder="10-digit mobile number"
+          maxLength={10}
+        />
+        {errors.phone && (
+          <p className="text-xs text-red-600">{errors.phone.message}</p>
+        )}
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="photo">Photo</Label>
+        <Controller
+          name="photo"
+          control={control}
+          render={({ field }) => (
+            <Input
+              id="photo"
+              type="file"
+              accept="image/*"
+              name={field.name}
+              ref={field.ref}
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                field.onChange(file);
+              }}
+              onBlur={field.onBlur}
+            />
+          )}
+        />
+        {errors.photo && (
+          <p className="text-xs text-red-600">{errors.photo.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="email">Email (optional)</Label>
-        <Input id="email" type="email" {...register("email")} placeholder="student@example.com" />
-        {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+        <Input
+          id="email"
+          type="email"
+          {...register("email")}
+          placeholder="student@example.com"
+        />
+        {errors.email && (
+          <p className="text-xs text-red-600">{errors.email.message}</p>
+        )}
       </div>
     </div>
   );

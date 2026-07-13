@@ -242,19 +242,29 @@ export const ANNOUNCEMENTS: Announcement[] = [
 ];
 
 export const QUICK_ACTIONS: QuickAction[] = [
-  { id: "qa-1", label: "Add Student", icon: UserPlus, href: "/students/new" },
-  { id: "qa-2", label: "Collect Fee", icon: Wallet, href: "/fees/collect" },
+  {
+    id: "qa-1",
+    label: "Add Student",
+    icon: UserPlus,
+    href: "/dashboard/admissions",
+  },
+  {
+    id: "qa-2",
+    label: "Collect Fee",
+    icon: Wallet,
+    href: "/dashboard/billing",
+  },
   {
     id: "qa-3",
     label: "Take Attendance",
     icon: ClipboardCheck,
-    href: "/attendance",
+    href: "/dashboard/attendance",
   },
-  {
-    id: "qa-4",
-    label: "Generate Certificate",
-    icon: Award,
-    href: "/certificates/new",
-  },
-  { id: "qa-5", label: "Add Teacher", icon: UserCog, href: "/teachers/new" },
+  // {
+  //   id: "qa-4",
+  //   label: "Generate Certificate",
+  //   icon: Award,
+  //   href: "/certificates/new",
+  // },
+  // { id: "qa-5", label: "Add Teacher", icon: UserCog, href: "/teachers/new" },
 ];

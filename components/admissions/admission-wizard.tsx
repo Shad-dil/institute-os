@@ -18,11 +18,29 @@ import { ReviewStep } from "@/components/admissions/steps/review-step";
 import type { AdmissionFormValues, CourseFeeOption } from "@/types/admission";
 import { ADMISSION_STEPS } from "@/types/admission";
 import { createAdmission } from "@/lib/action/admission-actions";
-
+import { uploadStudentPhoto } from "@/lib/action/upload-photo-action";
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 const admissionFormSchema = z.object({
   name: z.string().min(2, "Enter the student's full name"),
   email: z.string().email("Enter a valid email").or(z.literal("")),
   phone: z.string().regex(/^\d{10}$/, "Enter a valid 10-digit phone number"),
+  photo: z
+    .union([z.instanceof(File), z.null()])
+    .refine((file) => file !== null, { message: "Please upload an image file" })
+    .refine(
+      (file) => file === null || file.size <= MAX_FILE_SIZE,
+      `Max file size is 5MB`,
+    )
+    .refine(
+      (file) => file === null || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only .jpg, .jpeg, .png and .webp formats are supported",
+    ),
   parentName: z.string().or(z.literal("")),
   parentPhone: z
     .string()
@@ -34,10 +52,11 @@ const admissionFormSchema = z.object({
   dueDate: z.string().min(1, "Select a due date"),
   advanceAmount: z.coerce.number().min(0),
   advanceMethod: z.enum(["CASH", "UPI", "CARD", "BANK_TRANSFER", "OTHER"]),
+  inquiryId: z.string().optional().or(z.literal("")),
 });
 
 const STEP_FIELDS: (keyof AdmissionFormValues)[][] = [
-  ["name", "phone", "email"],
+  ["name", "phone", "email", "photo"],
   ["parentName", "parentPhone"],
   [
     "courseId",
@@ -52,9 +71,15 @@ const STEP_FIELDS: (keyof AdmissionFormValues)[][] = [
 
 interface AdmissionWizardProps {
   courses: CourseFeeOption[];
+  initialValues?: Partial<
+    Pick<AdmissionFormValues, "name" | "phone" | "courseId" | "inquiryId">
+  >;
 }
 
-export function AdmissionWizard({ courses }: AdmissionWizardProps) {
+export function AdmissionWizard({
+  courses,
+  initialValues,
+}: AdmissionWizardProps) {
   const [step, setStep] = useState(0);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -62,17 +87,19 @@ export function AdmissionWizard({ courses }: AdmissionWizardProps) {
   const methods = useForm<AdmissionFormValues>({
     resolver: zodResolver(admissionFormSchema),
     defaultValues: {
-      name: "",
+      name: initialValues?.name ?? "",
       email: "",
-      phone: "",
+      phone: initialValues?.phone ?? "",
+      photo: null,
       parentName: "",
       parentPhone: "",
-      courseId: "",
+      courseId: initialValues?.courseId ?? "",
       batchId: "",
       feeAmount: 0,
       dueDate: new Date().toISOString().split("T")[0],
       advanceAmount: 0,
       advanceMethod: "CASH",
+      inquiryId: initialValues?.inquiryId ?? "",
     },
     mode: "onBlur",
   });
@@ -86,14 +113,40 @@ export function AdmissionWizard({ courses }: AdmissionWizardProps) {
     setStep((s) => Math.max(s - 1, 0));
   }
 
-  function handleSubmit(values: AdmissionFormValues) {
+  async function handleSubmit(values: AdmissionFormValues) {
     startTransition(async () => {
-      const result = await createAdmission(values);
-      if (result.success) {
-        toast.success(`${values.name} admitted successfully`);
-        router.push("/dashboard/students");
-      } else {
-        toast.error(result.error ?? "Couldn't complete the admission");
+      try {
+        const photoUrl = values.photo
+          ? await uploadStudentPhoto(values.photo)
+          : "";
+
+        const admissionPayload = {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          parentName: values.parentName,
+          parentPhone: values.parentPhone,
+          courseId: values.courseId,
+          batchId: values.batchId,
+          feeAmount: values.feeAmount,
+          dueDate: values.dueDate,
+          advanceAmount: values.advanceAmount,
+          advanceMethod: values.advanceMethod,
+          photoUrl,
+        };
+
+        const result = await createAdmission(admissionPayload);
+
+        if (result.success) {
+          toast.success(`${values.name} admitted successfully`);
+          router.push("/dashboard/students");
+        } else {
+          toast.error(result.error ?? "Couldn't complete the admission");
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Couldn't upload the photo",
+        );
       }
     });
   }

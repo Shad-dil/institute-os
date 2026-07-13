@@ -3,6 +3,8 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getCurrentInstituteId } from "@/lib/queries/institute";
+import { createNotification } from "@/lib/notifications/create-notification";
 
 const recordPaymentSchema = z.object({
   invoiceId: z.string().min(1),
@@ -30,17 +32,19 @@ export async function recordPayment(formData: FormData): Promise<RecordPaymentRe
   const { invoiceId, amount, method } = parsed.data;
 
   try {
-    const paymentId = await prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.findUnique({ where: { id: invoiceId } });
+    const instituteId = await getCurrentInstituteId();
+
+    const { paymentId, studentName } = await prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.findFirst({
+        where: { id: invoiceId, student: { instituteId } },
+        include: { student: { select: { name: true } } },
+      });
       if (!invoice) throw new Error("Invoice not found");
 
       const totalAmount = Number(invoice.amount);
       const alreadyPaid = Number(invoice.amountPaid);
       const newAmountPaid = alreadyPaid + amount;
 
-      // Guard against accidental overpayment past the invoice total —
-      // still lets it through since real life has rounding/tip cases,
-      // but callers can surface this in the UI as a warning.
       if (newAmountPaid > totalAmount + 0.01) {
         throw new Error(
           `This payment (₹${amount}) would exceed the remaining balance (₹${(totalAmount - alreadyPaid).toFixed(2)}).`
@@ -60,7 +64,18 @@ export async function recordPayment(formData: FormData): Promise<RecordPaymentRe
         },
       });
 
-      return payment.id;
+      return { paymentId: payment.id, studentName: invoice.student.name };
+    });
+
+    // Immediate event — a real, one-off thing just happened, so no
+    // dedupKey needed here (contrast with the cron-computed
+    // notifications, which need one to avoid re-firing daily).
+    await createNotification({
+      instituteId,
+      type: "PAYMENT_RECEIVED",
+      title: "Payment received",
+      message: `₹${amount.toLocaleString("en-IN")} from ${studentName}`,
+      link: "/fees",
     });
 
     revalidatePath("/fees");

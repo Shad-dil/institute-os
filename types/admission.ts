@@ -16,6 +16,8 @@ export interface AdmissionFormValues {
   name: string;
   email: string;
   phone: string;
+  photo: File | null;
+  photoUrl?: string;
   parentName: string;
   parentPhone: string;
   courseId: string;
@@ -24,7 +26,13 @@ export interface AdmissionFormValues {
   dueDate: string;
   advanceAmount: number;
   advanceMethod: "CASH" | "UPI" | "CARD" | "BANK_TRANSFER" | "OTHER";
+  inquiryId?: string;
 }
 
-export const ADMISSION_STEPS = ["Student", "Guardian", "Course & Fees", "Review"] as const;
+export const ADMISSION_STEPS = [
+  "Student",
+  "Guardian",
+  "Course & Fees",
+  "Review",
+] as const;
 export type AdmissionStep = (typeof ADMISSION_STEPS)[number];

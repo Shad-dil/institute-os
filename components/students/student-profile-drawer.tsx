@@ -14,6 +14,7 @@ import { FeeStatusBadge } from "@/components/fees/fee-status-badge";
 import { AddNoteForm } from "@/components/students/add-note-form";
 import { Mail, Phone } from "lucide-react";
 import type { StudentProfile } from "@/types/students";
+import Image from "next/image";
 
 interface StudentProfileDrawerProps {
   studentId: string | null;
@@ -26,7 +27,10 @@ const ATTENDANCE_DOT: Record<string, string> = {
   ABSENT: "bg-red-400",
 };
 
-export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfileDrawerProps) {
+export function StudentProfileDrawer({
+  studentId,
+  onOpenChange,
+}: StudentProfileDrawerProps) {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +43,7 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
       .catch(() => setProfile(null))
       .finally(() => setLoading(false));
   }, [studentId]);
-
+  console.log(profile);
   useEffect(() => {
     if (studentId) loadProfile();
     else setProfile(null);
@@ -57,9 +61,22 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
             <SheetHeader>
               <div className="flex items-center gap-3">
                 <Avatar className="h-14 w-14">
-                  <AvatarFallback className="bg-blue-50 text-lg font-semibold text-blue-600">
+                  {/* <AvatarFallback className="bg-blue-50 text-lg font-semibold text-blue-600">
                     {profile.avatarInitials}
-                  </AvatarFallback>
+                  </AvatarFallback> */}
+                  {profile.photoUrl ? (
+                    <Image
+                      src={profile.photoUrl}
+                      width={55}
+                      height={40}
+                      alt={profile.name}
+                      className="rounded-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback className="bg-blue-50 text-lg font-semibold text-blue-600">
+                      {profile.avatarInitials}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div>
                   <SheetTitle>{profile.name}</SheetTitle>
@@ -86,11 +103,13 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
                   </p>
                   <div className="space-y-1.5 text-sm">
                     <p className="flex items-center gap-2 text-slate-700">
-                      <Phone className="h-3.5 w-3.5 text-slate-400" /> {profile.phone}
+                      <Phone className="h-3.5 w-3.5 text-slate-400" />{" "}
+                      {profile.phone}
                     </p>
                     {profile.email && (
                       <p className="flex items-center gap-2 text-slate-700">
-                        <Mail className="h-3.5 w-3.5 text-slate-400" /> {profile.email}
+                        <Mail className="h-3.5 w-3.5 text-slate-400" />{" "}
+                        {profile.email}
                       </p>
                     )}
                   </div>
@@ -105,7 +124,8 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
                       {profile.parentName && <p>{profile.parentName}</p>}
                       {profile.parentPhone && (
                         <p className="flex items-center gap-2">
-                          <Phone className="h-3.5 w-3.5 text-slate-400" /> {profile.parentPhone}
+                          <Phone className="h-3.5 w-3.5 text-slate-400" />{" "}
+                          {profile.parentPhone}
                         </p>
                       )}
                     </div>
@@ -117,14 +137,23 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
                     Test Results
                   </p>
                   {profile.testResults.length === 0 ? (
-                    <p className="text-sm text-slate-400">No tests recorded yet.</p>
+                    <p className="text-sm text-slate-400">
+                      No tests recorded yet.
+                    </p>
                   ) : (
                     <ul className="space-y-2">
                       {profile.testResults.map((tr) => (
-                        <li key={tr.testId} className="flex items-center justify-between text-sm">
+                        <li
+                          key={tr.testId}
+                          className="flex items-center justify-between text-sm"
+                        >
                           <div>
-                            <p className="font-medium text-slate-900">{tr.testName}</p>
-                            <p className="text-xs text-slate-400">{tr.testDate}</p>
+                            <p className="font-medium text-slate-900">
+                              {tr.testName}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {tr.testDate}
+                            </p>
                           </div>
                           <span className="font-medium text-slate-700">
                             {tr.marksObtained}/{tr.maxMarks} ({tr.percentage}%)
@@ -139,14 +168,20 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
               {/* --- Attendance --- */}
               <TabsContent value="attendance" className="space-y-4 pt-4">
                 <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
-                  <span className="text-sm text-slate-500">Overall Attendance</span>
+                  <span className="text-sm text-slate-500">
+                    Overall Attendance
+                  </span>
                   <span className="text-2xl font-semibold text-slate-900">
-                    {profile.attendancePct !== null ? `${profile.attendancePct}%` : "—"}
+                    {profile.attendancePct !== null
+                      ? `${profile.attendancePct}%`
+                      : "—"}
                   </span>
                 </div>
 
                 {profile.attendanceRecords.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-slate-400">No attendance marked yet.</p>
+                  <p className="py-6 text-center text-sm text-slate-400">
+                    No attendance marked yet.
+                  </p>
                 ) : (
                   <ul className="space-y-1.5">
                     {profile.attendanceRecords.map((record, idx) => (
@@ -156,8 +191,11 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
                       >
                         <span className="text-slate-600">{record.date}</span>
                         <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                          <span className={`h-2 w-2 rounded-full ${ATTENDANCE_DOT[record.status]}`} />
-                          {record.status.charAt(0) + record.status.slice(1).toLowerCase()}
+                          <span
+                            className={`h-2 w-2 rounded-full ${ATTENDANCE_DOT[record.status]}`}
+                          />
+                          {record.status.charAt(0) +
+                            record.status.slice(1).toLowerCase()}
                         </span>
                       </li>
                     ))}
@@ -168,26 +206,39 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
               {/* --- Fees --- */}
               <TabsContent value="fees" className="space-y-3 pt-4">
                 {profile.invoices.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-slate-400">No fee records yet.</p>
+                  <p className="py-6 text-center text-sm text-slate-400">
+                    No fee records yet.
+                  </p>
                 ) : (
                   profile.invoices.map((inv) => (
-                    <div key={inv.id} className="rounded-lg border border-slate-100 p-4">
+                    <div
+                      key={inv.id}
+                      className="rounded-lg border border-slate-100 p-4"
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">Due {inv.dueDate}</span>
+                        <span className="text-sm text-slate-500">
+                          Due {inv.dueDate}
+                        </span>
                         <FeeStatusBadge status={inv.status} />
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
                         <div>
                           <p className="text-xs text-slate-400">Total</p>
-                          <p className="font-medium text-slate-900">₹{inv.totalAmount.toLocaleString("en-IN")}</p>
+                          <p className="font-medium text-slate-900">
+                            ₹{inv.totalAmount.toLocaleString("en-IN")}
+                          </p>
                         </div>
                         <div>
                           <p className="text-xs text-slate-400">Paid</p>
-                          <p className="font-medium text-green-600">₹{inv.amountPaid.toLocaleString("en-IN")}</p>
+                          <p className="font-medium text-green-600">
+                            ₹{inv.amountPaid.toLocaleString("en-IN")}
+                          </p>
                         </div>
                         <div>
                           <p className="text-xs text-slate-400">Balance</p>
-                          <p className="font-medium text-slate-900">₹{inv.balanceDue.toLocaleString("en-IN")}</p>
+                          <p className="font-medium text-slate-900">
+                            ₹{inv.balanceDue.toLocaleString("en-IN")}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -200,13 +251,17 @@ export function StudentProfileDrawer({ studentId, onOpenChange }: StudentProfile
                 <AddNoteForm studentId={profile.id} onAdded={loadProfile} />
 
                 {profile.notes.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-slate-400">No notes yet.</p>
+                  <p className="py-6 text-center text-sm text-slate-400">
+                    No notes yet.
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {profile.notes.map((note) => (
                       <li key={note.id} className="rounded-lg bg-slate-50 p-3">
                         <p className="text-sm text-slate-700">{note.content}</p>
-                        <p className="mt-1 text-xs text-slate-400">{note.createdAt}</p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          {note.createdAt}
+                        </p>
                       </li>
                     ))}
                   </ul>
