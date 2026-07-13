@@ -84,8 +84,12 @@ export function NewTestDialog({ courses }: NewTestDialogProps) {
 
           <div className="space-y-1.5">
             <Label htmlFor="courseId">Course / Batch</Label>
-            <Select value={courseId} onValueChange={setCourseId}>
-              <SelectTrigger id="courseId">
+            <Select
+              value={courseId}
+              onValueChange={setCourseId}
+              items={courses.map((c) => ({ value: c.id, label: c.name }))}
+            >
+              <SelectTrigger id="courseId" className={"w-full"}>
                 <SelectValue placeholder="Select a course" />
               </SelectTrigger>
               <SelectContent>

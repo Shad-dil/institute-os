@@ -34,7 +34,7 @@ export default async function AdmissionsPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
         title="New Admission"
         description="Add a student, set their fee, and record any advance payment — all in one go."

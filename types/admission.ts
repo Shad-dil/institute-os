@@ -16,7 +16,7 @@ export interface AdmissionFormValues {
   name: string;
   email: string;
   phone: string;
-  photo: File | null;
+  photo?: File | null;
   photoUrl?: string;
   parentName: string;
   parentPhone: string;

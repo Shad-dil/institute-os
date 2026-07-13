@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import type { CourseOption } from "@/types/tests";
 import type { BatchOption } from "@/types/admission";
+import { Label } from "../ui/label";
 
 interface AttendanceFiltersProps {
   courses: CourseOption[];
@@ -45,8 +46,9 @@ export function AttendanceFilters({
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
-      <div className="w-full sm:w-56">
+    <div className="flex flex-col gap-3 sm:flex-row ">
+      <div className="w-full sm:w-56 ">
+        <Label>Select Course</Label>
         <Select
           items={courses.map((c) => ({ value: c.id, label: c.name }))}
           value={courseId}
@@ -55,7 +57,7 @@ export function AttendanceFilters({
             updateParams({ courseId: v });
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a course" />
           </SelectTrigger>
           <SelectContent>
@@ -70,15 +72,17 @@ export function AttendanceFilters({
 
       {batches.length > 0 && (
         <div className="w-full sm:w-56">
+          <Label>Select Batch</Label>
           <Select
+            items={batches.map((c) => ({ value: c.id, label: c.name }))}
             value={batchId || "all"}
             onValueChange={(v) => {
               if (v === null) return;
               updateParams({ batchId: v === "all" ? "" : v });
             }}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="All batches" />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a batch" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All batches in course</SelectItem>
@@ -91,13 +95,15 @@ export function AttendanceFilters({
           </Select>
         </div>
       )}
-
-      <Input
-        type="date"
-        value={dateISO}
-        onChange={(e) => updateParams({ date: e.target.value })}
-        className="w-full sm:w-48"
-      />
+      <div>
+        <Label>{"Select Date "}</Label>
+        <Input
+          type="date"
+          value={dateISO}
+          onChange={(e) => updateParams({ date: e.target.value })}
+          className="w-full sm:w-48"
+        />
+      </div>
     </div>
   );
 }
