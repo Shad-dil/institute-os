@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Clock, IndianRupee, Trash2 } from "lucide-react";
+import { Users, Clock, IndianRupee, Trash2, Repeat } from "lucide-react";
 import { CourseFormDialog } from "@/components/courses/course-form-dialog";
 import { BatchFormDialog } from "@/components/courses/batch-form-dialog";
 import { ConfirmationDialog } from "@/components/ui-extra/confirmation-dialog";
@@ -55,11 +55,23 @@ export function CourseCard({ course }: CourseCardProps) {
       <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-start justify-between p-5">
           <div>
-            <h3 className="font-semibold text-slate-900">{course.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-slate-900">{course.name}</h3>
+              {course.billingCycle === "MONTHLY" && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-blue-200 bg-blue-50 text-[10px] font-medium text-blue-700"
+                >
+                  <Repeat className="h-2.5 w-2.5" />
+                  Monthly
+                </Badge>
+              )}
+            </div>
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
               <span className="flex items-center gap-1">
                 <IndianRupee className="h-3 w-3" /> ₹
                 {course.fees.toLocaleString("en-IN")}
+                {course.billingCycle === "MONTHLY" && "/mo"}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" /> {course.duration}

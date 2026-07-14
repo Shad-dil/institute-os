@@ -14,6 +14,7 @@ export async function getCourses(instituteId: string): Promise<CourseSummary[]> 
       name: true,
       fees: true,
       duration: true,
+      billingCycle: true,
       students: { select: { id: true } },
       batches: {
         orderBy: { name: "asc" },
@@ -35,6 +36,7 @@ export async function getCourses(instituteId: string): Promise<CourseSummary[]> 
     name: c.name,
     fees: toNumber(c.fees),
     duration: c.duration,
+    billingCycle: c.billingCycle,
     studentCount: c.students.length,
     batches: c.batches.map((b) => mapBatch(b)),
   }));

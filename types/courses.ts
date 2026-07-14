@@ -14,6 +14,7 @@ export interface CourseSummary {
   name: string;
   fees: number;
   duration: string;
+  billingCycle: "ONE_TIME" | "MONTHLY";
   studentCount: number;
   batches: BatchSummary[];
 }
@@ -22,12 +23,13 @@ export interface CourseFormValues {
   name: string;
   fees: number;
   duration: string;
+  billingCycle: "ONE_TIME" | "MONTHLY";
 }
 
 export interface BatchFormValues {
   name: string;
   schedule: string;
   facultyName: string;
-  capacity: string; // form input as string, coerced server-side
+  capacity: string;
   startDate: string;
 }

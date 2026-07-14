@@ -39,6 +39,7 @@ model Institute {
   users    User[]
   notifications Notification[]
   inquiries Inquiry[]
+  feeReminderNotices FeeReminderNotice[]
 }
 enum NotificationType {
   PAYMENT_RECEIVED
@@ -78,6 +79,7 @@ model Course {
   duration    String // e.g., "3 Months", "1 Year"
   instituteId String
   createdAt   DateTime @default(now())
+  billingCycle BillingCycle @default(ONE_TIME)
 
   // Relations
   institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
@@ -100,6 +102,7 @@ model Student {
   instituteId String
   courseId    String
 
+  enrollmentStatus EnrollmentStatus @default(ACTIVE)
   // Relations
   institute   Institute    @relation(fields: [instituteId], references: [id], onDelete: Cascade)
   course      Course       @relation(fields: [courseId], references: [id])
@@ -164,6 +167,7 @@ model Invoice {
 
   student  Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   payments Payment[] // NEW
+  feeReminderNotices FeeReminderNotice[]
 }
 
 // NEW MODEL — one row per actual payment collected. This is what makes
@@ -287,4 +291,26 @@ model InquiryFollowUp {
   createdAt DateTime @default(now())
 
   inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+}
+enum BillingCycle {
+  ONE_TIME // computer institute style — one fee for the whole course
+  MONTHLY  // coaching style — recurring, same amount, new invoice each month
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  LEFT
+}
+model FeeReminderNotice {
+  id          String   @id @default(cuid())
+  instituteId String
+  invoiceId   String   @unique
+  studentName String   // denormalized so the banner can render without an extra join
+  amount      Decimal
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
