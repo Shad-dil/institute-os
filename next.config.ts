@@ -20,6 +20,13 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  serverExternalPackages: [
+    "@react-pdf/renderer",
+    "@react-pdf/font",
+    "@react-pdf/pdfkit",
+    "fontkit",
+    "pdfkit",
+  ],
 };
 
 export default nextConfig;

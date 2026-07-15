@@ -1,58 +1,30 @@
 // ---------------------------------------------------------------------------
 // ADD/CHANGE in prisma/schema.prisma, then run:
-//   npx prisma migrate dev --name add_monthly_billing
+//   npx prisma migrate dev --name add_receipts
 // ---------------------------------------------------------------------------
 
-enum BillingCycle {
-  ONE_TIME // computer institute style — one fee for the whole course
-  MONTHLY  // coaching style — recurring, same amount, new invoice each month
-}
-
-enum EnrollmentStatus {
-  ACTIVE
-  PAUSED
-  LEFT
-}
-
-// ---------------------------------------------------------------------------
-// ADD these two fields to your EXISTING Course and Student models — do
-// NOT recreate the whole model, just add the one line to each:
+// ADD these fields to your EXISTING Institute model — don't recreate the
+// whole model, just add these lines:
 //
-//   model Course {
+//   model Institute {
 //     ...
-//     billingCycle BillingCycle @default(ONE_TIME)
+//     logoUrl           String?  // uploaded logo, shown top-left on receipts
+//     signatureUrl      String?  // optional — scanned/photographed signature image
+//     signatoryName     String?  // e.g. "Ravi Kumar, Director" — printed under the signature line
+//     nextReceiptNumber Int      @default(1)  // see note below on why this exists
+//   }
+
+// ADD this field to your EXISTING Payment model:
+//
+//   model Payment {
+//     ...
+//     receiptNumber String? @unique
 //   }
 //
-//   model Student {
-//     ...
-//     enrollmentStatus EnrollmentStatus @default(ACTIVE)
-//   }
-//
-// Defaulting to ONE_TIME/ACTIVE means every existing row keeps behaving
-// exactly as it does today — nothing about your current Fees module
-// changes for institutes that don't use monthly billing.
-// ---------------------------------------------------------------------------
-
-// Deliberately narrow, not a general-purpose notification system. One
-// row per invoice (the unique constraint below IS the dedup mechanism —
-// simpler than the multi-type Notification model from before, because
-// this only ever needs to answer one question: "has someone been told
-// about this specific invoice yet?").
-model FeeReminderNotice {
-  id          String   @id @default(cuid())
-  instituteId String
-  invoiceId   String   @unique
-  studentName String   // denormalized so the banner can render without an extra join
-  amount      Decimal
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
-  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-}
-
-// ---------------------------------------------------------------------------
-// Add these relation lines to your EXISTING models:
-//   model Institute { ... feeReminderNotices FeeReminderNotice[] }
-//   model Invoice   { ... feeReminderNotice  FeeReminderNotice?  }
-// ---------------------------------------------------------------------------
+// Why nextReceiptNumber lives on Institute rather than being computed
+// on the fly: a receipt number needs to be STABLE — reprinting the same
+// receipt next week must show the same number, and numbers should be
+// sequential without gaps for basic bookkeeping sanity. Storing a
+// running counter per institute and incrementing it atomically inside
+// the same transaction that creates the Payment is what guarantees that,
+// even if two payments get recorded at the exact same moment.

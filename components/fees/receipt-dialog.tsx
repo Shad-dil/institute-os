@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Download } from "lucide-react";
 import type { InvoiceRow, PaymentRecord } from "@/types/fees";
 
 interface ReceiptDialogProps {
@@ -26,7 +26,11 @@ const METHOD_LABEL: Record<string, string> = {
   OTHER: "Other",
 };
 
-export function ReceiptDialog({ invoice, open, onOpenChange }: ReceiptDialogProps) {
+export function ReceiptDialog({
+  invoice,
+  open,
+  onOpenChange,
+}: ReceiptDialogProps) {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -50,18 +54,24 @@ export function ReceiptDialog({ invoice, open, onOpenChange }: ReceiptDialogProp
           <DialogDescription>{invoice.course}</DialogDescription>
         </DialogHeader>
 
-        <div id="receipt-print-area" className="space-y-3">
+        <div className="space-y-3">
           <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
             <span className="text-slate-500">Total Fee</span>
-            <span className="font-semibold text-slate-900">₹{invoice.totalAmount.toLocaleString("en-IN")}</span>
+            <span className="font-semibold text-slate-900">
+              ₹{invoice.totalAmount.toLocaleString("en-IN")}
+            </span>
           </div>
           <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
             <span className="text-slate-500">Paid So Far</span>
-            <span className="font-semibold text-green-600">₹{invoice.amountPaid.toLocaleString("en-IN")}</span>
+            <span className="font-semibold text-green-600">
+              ₹{invoice.amountPaid.toLocaleString("en-IN")}
+            </span>
           </div>
           <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
             <span className="text-slate-500">Balance Due</span>
-            <span className="font-semibold text-slate-900">₹{invoice.balanceDue.toLocaleString("en-IN")}</span>
+            <span className="font-semibold text-slate-900">
+              ₹{invoice.balanceDue.toLocaleString("en-IN")}
+            </span>
           </div>
 
           <div>
@@ -69,36 +79,59 @@ export function ReceiptDialog({ invoice, open, onOpenChange }: ReceiptDialogProp
               Transactions
             </p>
             {loading ? (
-              <p className="py-4 text-center text-sm text-slate-400">Loading…</p>
+              <p className="py-4 text-center text-sm text-slate-400">
+                Loading…
+              </p>
             ) : payments.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">No payments recorded yet.</p>
+              <p className="py-4 text-center text-sm text-slate-400">
+                No payments recorded yet.
+              </p>
             ) : (
               <ul className="space-y-2">
                 {payments.map((p) => (
                   <li
                     key={p.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm"
+                    className="flex items-center justify-between gap-2 rounded-lg border border-slate-100 px-3 py-2.5 text-sm"
                   >
-                    <div>
-                      <p className="font-medium text-slate-900">₹{p.amount.toLocaleString("en-IN")}</p>
-                      <p className="text-xs text-slate-400">{METHOD_LABEL[p.method] ?? p.method}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900">
+                        ₹{p.amount.toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {METHOD_LABEL[p.method] ?? p.method} · {p.paidAt}
+                      </p>
                     </div>
-                    <span className="text-xs text-slate-500">{p.paidAt}</span>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 px-2 text-xs text-slate-500"
+                      >
+                        <a
+                          href={`/api/receipts/${p.id}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                          View / Print
+                        </a>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 px-2 text-xs text-slate-500"
+                      >
+                        <a href={`/api/receipts/${p.id}/pdf?download=true`}>
+                          <Download className="h-3.5 w-3.5" />
+                        </a>
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         </div>
-
-        <Button
-          variant="outline"
-          className="gap-1.5"
-          onClick={() => window.print()}
-        >
-          <Printer className="h-4 w-4" />
-          Print Receipt
-        </Button>
       </DialogContent>
     </Dialog>
   );

@@ -52,9 +52,9 @@ export const navigation = [
     href: "/dashboard/inquiries",
     icon: FileBarChart,
   },
-  // {
-  //   title: "Settings",
-  //   href: "/settings",
-  //   icon: Settings,
-  // },
+  {
+    title: "Settings",
+    href: "/dashboard/settings",
+    icon: Settings,
+  },
 ];

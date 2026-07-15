@@ -4,7 +4,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getCurrentInstituteId } from "@/lib/queries/institute";
-import { createNotification } from "@/lib/notifications/create-notification";
 
 const recordPaymentSchema = z.object({
   invoiceId: z.string().min(1),
@@ -34,10 +33,9 @@ export async function recordPayment(formData: FormData): Promise<RecordPaymentRe
   try {
     const instituteId = await getCurrentInstituteId();
 
-    const { paymentId, studentName } = await prisma.$transaction(async (tx) => {
+    const paymentId = await prisma.$transaction(async (tx) => {
       const invoice = await tx.invoice.findFirst({
         where: { id: invoiceId, student: { instituteId } },
-        include: { student: { select: { name: true } } },
       });
       if (!invoice) throw new Error("Invoice not found");
 
@@ -51,8 +49,18 @@ export async function recordPayment(formData: FormData): Promise<RecordPaymentRe
         );
       }
 
+      // NEW — atomically claim the next receipt number. This is a real
+      // UPDATE ... SET n = n + 1 at the database level, so two payments
+      // recorded at the exact same instant still each get a unique,
+      // sequential number — no race condition, no gap-filling needed.
+      const institute = await tx.institute.update({
+        where: { id: instituteId },
+        data: { nextReceiptNumber: { increment: 1 } },
+      });
+      const receiptNumber = `RCP-${String(institute.nextReceiptNumber - 1).padStart(4, "0")}`;
+
       const payment = await tx.payment.create({
-        data: { invoiceId, amount, method },
+        data: { invoiceId, amount, method, receiptNumber },
       });
 
       await tx.invoice.update({
@@ -64,18 +72,7 @@ export async function recordPayment(formData: FormData): Promise<RecordPaymentRe
         },
       });
 
-      return { paymentId: payment.id, studentName: invoice.student.name };
-    });
-
-    // Immediate event — a real, one-off thing just happened, so no
-    // dedupKey needed here (contrast with the cron-computed
-    // notifications, which need one to avoid re-firing daily).
-    await createNotification({
-      instituteId,
-      type: "PAYMENT_RECEIVED",
-      title: "Payment received",
-      message: `₹${amount.toLocaleString("en-IN")} from ${studentName}`,
-      link: "/fees",
+      return payment.id;
     });
 
     revalidatePath("/fees");

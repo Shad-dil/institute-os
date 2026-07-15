@@ -30,6 +30,10 @@ model Institute {
   name      String
   email     String   @unique
   createdAt DateTime @default(now())
+   logoUrl           String?  // uploaded logo, shown top-left on receipts
+    signatureUrl      String?  // optional — scanned/photographed signature image
+    signatoryName     String?  // e.g. "Ravi Kumar, Director" — printed under the signature line
+    nextReceiptNumber Int      @default(1)  // see note below on why this exists
 
   // Relations
   courses  Course[]
@@ -179,6 +183,7 @@ model Payment {
   amount    Decimal
   method    PaymentMethod @default(CASH)
   paidAt    DateTime      @default(now())
+  receiptNumber String? @unique
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
